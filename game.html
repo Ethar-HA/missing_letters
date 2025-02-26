@@ -27,17 +27,30 @@
             border: 2px solid red;
             background-color: white;
         }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <h1>Guess the Missing Letters</h1>
     <div id="wordDisplay" class="word-container"></div>
     <button onclick="checkAnswer()">Submit</button>
+    <button onclick="finishEarly()">Finish Early</button>
     <p id="result"></p>
-    <p>Score: <span id="score">1</span></p>
+    <p>Score: <span id="score">0</span> / 120</p>
 
     <script>
-        <!-- This game contains 120 words -->
         const wordList = [
             "Achievement", "Acceptance", "Adventure", "Affection", "Competition", "Awareness", "Beauty", "Challenge", 
             "Change", "Community", "Compassion", "Competence", "Completion", "Connectedness", "Cooperation", 
@@ -53,7 +66,13 @@
             "Privacy", "Purity", "Quality", "Radiance", "Recognition", "Relationships", "Religion", "Reputation", 
             "Responsibility", "Risk", "Safety & Security", "Self-Respect", "Sensibility", "Sensuality", "Serenity", 
             "Service", "Sexuality", "Sophistication", "Spark", "Speculation", "Spirituality", "Stability", "Success", 
-            "Status", "Teaching", "Tenderness", "Thrill", "Unity", "Variety", "Wealth", "Winning", "Wisdom"
+            "Status", "Teaching", "Tenderness", "Thrill", "Unity", "Variety", "Wealth", "Winning", "Wisdom", "Innovation", 
+            "Empowerment", "Revolution", "Transformation", "Collaboration", "Sustainability", "Opportunity", "Determination", 
+            "Creativity", "Ambition", "Inclusion", "Resilience", "Productivity", "Integrity", "Support", "Diversity", 
+            "Responsibility", "Progress", "Efficiency", "Motivation", "Perspective", "Independence", "Enthusiasm", 
+            "Flexibility", "Teamwork", "Vision", "Leadership", "Inspiration", "Commitment", "Growth", "Well-being", 
+            "Balance", "Diligence", "Trust", "Determination", "Security", "Gratitude", "Patience", "Courage", "Satisfaction", 
+            "Reliability", "Commitment", "Innovation", "Respect", "Unity", "Focus", "Integrity", "Adaptability", "Creativity"
         ];
 
         function generateWords() {
@@ -61,7 +80,6 @@
                 let wordArr = word.split("");
                 let indices = [];
                 
-                // Ensure two different random missing letters
                 while (indices.length < 2) {
                     let randomIndex = Math.floor(Math.random() * wordArr.length);
                     if (!indices.includes(randomIndex) && wordArr[randomIndex] !== " ") {
@@ -81,9 +99,14 @@
 
         const words = generateWords();
         let currentWordIndex = 0;
-        let score = 1;
+        let score = 0; // Score starts from 0
 
         function loadWord() {
+            if (currentWordIndex >= words.length) {
+                finishGame();
+                return;
+            }
+
             const wordObj = words[currentWordIndex];
             const wordDisplay = document.getElementById("wordDisplay");
             wordDisplay.innerHTML = "";
@@ -120,8 +143,8 @@
 
             if (correct) {
                 document.getElementById("result").textContent = "Correct!";
-                score += 1;
-                document.getElementById("score").textContent = score;
+                score++;
+                document.getElementById("score").textContent = `${score} `; // Update the score here
             } else {
                 document.getElementById("result").textContent = "Try Again!";
                 return;
@@ -132,10 +155,18 @@
             if (currentWordIndex < words.length) {
                 setTimeout(loadWord, 1000);
             } else {
-                document.getElementById("wordDisplay").textContent = "Well Played!";
-                document.getElementById("result").textContent = `Final Score: ${score}`;
-                document.querySelector("button").style.display = "none";
+                finishGame(); // Do not update score here anymore
             }
+        }
+
+        function finishGame() {
+            document.getElementById("wordDisplay").textContent = "Well Played!";
+            document.getElementById("result").textContent = `Final Score: ${score} / 120`;
+            document.querySelectorAll("button").forEach(button => button.style.display = "none");
+        }
+
+        function finishEarly() {
+            finishGame();
         }
 
         loadWord();
