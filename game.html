@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missing Letter Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .word-container {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .letter-box {
+            width: 30px;
+            height: 30px;
+            font-size: 24px;
+            text-align: center;
+            border: 1px solid #000;
+        }
+        .hidden {
+            border: 2px solid red;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Guess the Missing Letters</h1>
+    <div id="wordDisplay" class="word-container"></div>
+    <button onclick="checkAnswer()">Submit</button>
+    <p id="result"></p>
+    <p>Score: <span id="score">1</span></p>
+
+    <script>
+        const wordList = [
+            "Achievement", "Acceptance", "Adventure", "Affection", "Competition", "Awareness", "Beauty", "Challenge", 
+            "Change", "Community", "Compassion", "Competence", "Completion", "Connectedness", "Cooperation", 
+            "Collaboration", "Country", "Creativity", "Decisiveness", "Democracy", "Design", "Discovery", "Diversity", 
+            "Environmental", "Economic Security", "Education", "Effectiveness", "Efficiency", "Elegance", "Entertainment", 
+            "Enlightenment", "Equality", "Ethics", "Excellence", "Excitement", "Experiment", "Expertise", "Exhilaration", 
+            "Fairness", "Fame", "Family", "Happiness", "Fast Pace", "Freedom", "Friendship", "Fun", "Grace", "Growth", 
+            "Harmony", "Health", "Helping Others", "Helping Society", "Honesty", "Humor", "Imagination", "Improvement", 
+            "Independence", "Influencing Others", "Inner Harmony", "Inspiration", "Integrity", "Intellect", "Involvement", 
+            "Knowledge", "Leadership", "Learning", "Loyalty", "Magnificence", "Making a Difference", "Mastery", 
+            "Meaningful Work", "Ministering", "Money", "Morality", "Mystery", "Nature", "Openness", "Originality", "Order", 
+            "Passion", "Peace", "Personal Development", "Personal Expression", "Planning", "Play", "Pleasure", "Power", 
+            "Privacy", "Purity", "Quality", "Radiance", "Recognition", "Relationships", "Religion", "Reputation", 
+            "Responsibility", "Risk", "Safety & Security", "Self-Respect", "Sensibility", "Sensuality", "Serenity", 
+            "Service", "Sexuality", "Sophistication", "Spark", "Speculation", "Spirituality", "Stability", "Success", 
+            "Status", "Teaching", "Tenderness", "Thrill", "Unity", "Variety", "Wealth", "Winning", "Wisdom"
+        ];
+
+        function generateWords() {
+            return wordList.map(word => {
+                let wordArr = word.split("");
+                let indices = [];
+                
+                // Ensure two different random missing letters
+                while (indices.length < 2) {
+                    let randomIndex = Math.floor(Math.random() * wordArr.length);
+                    if (!indices.includes(randomIndex) && wordArr[randomIndex] !== " ") {
+                        indices.push(randomIndex);
+                    }
+                }
+
+                let missingLetters = {};
+                indices.forEach(index => {
+                    missingLetters[index] = wordArr[index].toLowerCase();
+                    wordArr[index] = "_";
+                });
+
+                return { word: wordArr.join(""), missing: missingLetters };
+            });
+        }
+
+        const words = generateWords();
+        let currentWordIndex = 0;
+        let score = 1;
+
+        function loadWord() {
+            const wordObj = words[currentWordIndex];
+            const wordDisplay = document.getElementById("wordDisplay");
+            wordDisplay.innerHTML = "";
+
+            for (let i = 0; i < wordObj.word.length; i++) {
+                if (wordObj.missing.hasOwnProperty(i)) {
+                    let inputBox = document.createElement("input");
+                    inputBox.setAttribute("type", "text");
+                    inputBox.setAttribute("maxlength", "1");
+                    inputBox.setAttribute("data-index", i);
+                    inputBox.classList.add("letter-box", "hidden");
+                    wordDisplay.appendChild(inputBox);
+                } else {
+                    let span = document.createElement("span");
+                    span.textContent = wordObj.word[i];
+                    wordDisplay.appendChild(span);
+                }
+            }
+
+            document.getElementById("result").textContent = "";
+        }
+
+        function checkAnswer() {
+            let wordObj = words[currentWordIndex];
+            let inputs = document.querySelectorAll(".hidden");
+            let correct = true;
+            
+            inputs.forEach(input => {
+                let index = input.getAttribute("data-index");
+                if (input.value.toLowerCase() !== wordObj.missing[index]) {
+                    correct = false;
+                }
+            });
+
+            if (correct) {
+                document.getElementById("result").textContent = "Correct!";
+                score += 1;
+                document.getElementById("score").textContent = score;
+            } else {
+                document.getElementById("result").textContent = "Try Again!";
+                return;
+            }
+
+            currentWordIndex++;
+
+            if (currentWordIndex < words.length) {
+                setTimeout(loadWord, 1000);
+            } else {
+                document.getElementById("wordDisplay").textContent = "Well Played!";
+                document.getElementById("result").textContent = `Final Score: ${score}`;
+                document.querySelector("button").style.display = "none";
+            }
+        }
+
+        loadWord();
+    </script>
+</body>
+</html>
