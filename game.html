@@ -45,14 +45,11 @@
 <body>
     <h1>Guess the Missing Letters</h1>
     <div id="wordDisplay" class="word-container"></div>
-    <button onclick="checkAnswer()">Submit</button>
-
     <p id="result"></p>
     <p>Score: <span id="score">0</span> / 120</p>
 
     <script>
-        const wordList = [
-            "Achievement", "Acceptance", "Adventure", "Affection", "Competition", "Awareness", "Beauty", "Challenge", 
+        let wordList = ["Achievement", "Acceptance", "Adventure", "Affection", "Competition", "Awareness", "Beauty", "Challenge", 
             "Change", "Community", "Compassion", "Competence", "Completion", "Connectedness", "Cooperation", 
             "Collaboration", "Country", "Creativity", "Decisiveness", "Democracy", "Design", "Discovery", "Diversity", 
             "Environmental", "Economic Security", "Education", "Effectiveness", "Efficiency", "Elegance", "Entertainment", 
@@ -72,100 +69,107 @@
             "Responsibility", "Progress", "Efficiency", "Motivation", "Perspective", "Independence", "Enthusiasm", 
             "Flexibility", "Teamwork", "Vision", "Leadership", "Inspiration", "Commitment", "Growth", "Well-being", 
             "Balance", "Diligence", "Trust", "Determination", "Security", "Gratitude", "Patience", "Courage", "Satisfaction", 
-            "Reliability", "Commitment", "Innovation", "Respect", "Unity", "Focus", "Integrity", "Adaptability", "Creativity"
-        ];
+            "Reliability", "Commitment", "Innovation", "Respect", "Unity", "Focus", "Integrity", "Adaptability", "Creativity"];
+        let incorrectWords = [];
+        let score = 0;
+        let currentWordIndex = 0;
+        let currentWordObj = null;
 
-        function generateWords() {
-            return wordList.map(word => {
-                let wordArr = word.split("");
-                let indices = [];
-                
-                while (indices.length < 3) {
-                    let randomIndex = Math.floor(Math.random() * wordArr.length);
-                    if (!indices.includes(randomIndex) && wordArr[randomIndex] !== " ") {
-                        indices.push(randomIndex);
-                    }
+        function generateWordObject(word) {
+            let wordArr = word.split("");
+            let indices = [];
+            while (indices.length < 3) {
+                let randomIndex = Math.floor(Math.random() * wordArr.length);
+                if (!indices.includes(randomIndex) && wordArr[randomIndex] !== " ") {
+                    indices.push(randomIndex);
                 }
-
-                let missingLetters = {};
-                indices.forEach(index => {
-                    missingLetters[index] = wordArr[index].toLowerCase();
-                    wordArr[index] = "_";
-                });
-
-                return { word: wordArr.join(""), missing: missingLetters };
+            }
+            let missingLetters = {};
+            indices.forEach(index => {
+                missingLetters[index] = wordArr[index].toLowerCase();
+                wordArr[index] = "_";
             });
+            return { word: wordArr.join(""), missing: missingLetters, penalized: false };
         }
 
-        const words = generateWords();
-        let currentWordIndex = 0;
-        let score = 0; // Score starts from 0
-
         function loadWord() {
-            if (currentWordIndex >= words.length) {
+            if (currentWordIndex >= wordList.length && incorrectWords.length === 0) {
                 finishGame();
                 return;
             }
-
-            const wordObj = words[currentWordIndex];
+            if (currentWordIndex >= wordList.length) {
+                wordList = [...incorrectWords];
+                incorrectWords = [];
+                currentWordIndex = 0;
+            }
+            
+            currentWordObj = generateWordObject(wordList[currentWordIndex]);
+            
             const wordDisplay = document.getElementById("wordDisplay");
             wordDisplay.innerHTML = "";
-
-            for (let i = 0; i < wordObj.word.length; i++) {
-                if (wordObj.missing.hasOwnProperty(i)) {
+            let inputCount = 0;
+            for (let i = 0; i < currentWordObj.word.length; i++) {
+                if (currentWordObj.missing.hasOwnProperty(i)) {
                     let inputBox = document.createElement("input");
                     inputBox.setAttribute("type", "text");
                     inputBox.setAttribute("maxlength", "1");
                     inputBox.setAttribute("data-index", i);
                     inputBox.classList.add("letter-box", "hidden");
+                    inputBox.addEventListener("input", checkAutoAnswer);
                     wordDisplay.appendChild(inputBox);
+                    inputCount++;
                 } else {
                     let span = document.createElement("span");
-                    span.textContent = wordObj.word[i];
+                    span.textContent = currentWordObj.word[i];
                     wordDisplay.appendChild(span);
                 }
             }
-
             document.getElementById("result").textContent = "";
         }
 
+        function checkAutoAnswer() {
+            let inputs = document.querySelectorAll(".hidden");
+            let filledInputs = Array.from(inputs).filter(input => input.value.trim() !== "");
+            
+            if (filledInputs.length === 3) {
+                checkAnswer();
+            }
+        }
+
         function checkAnswer() {
-            let wordObj = words[currentWordIndex];
             let inputs = document.querySelectorAll(".hidden");
             let correct = true;
             
             inputs.forEach(input => {
                 let index = input.getAttribute("data-index");
-                if (input.value.toLowerCase() !== wordObj.missing[index]) {
+                if (input.value.toLowerCase() !== currentWordObj.missing[index]) {
                     correct = false;
                 }
             });
-
+            
             if (correct) {
                 document.getElementById("result").textContent = "Correct!";
-                score++;
-                document.getElementById("score").textContent = `${score} `; // Update the score here
+                if (!currentWordObj.penalized) {
+                    score++;
+                }
             } else {
-                document.getElementById("result").textContent = "Try Again!";
-                return;
+                document.getElementById("result").textContent = "Wrong! Try again later.";
+                if (!currentWordObj.penalized) {
+                    score--;
+                    currentWordObj.penalized = true;
+                }
+                incorrectWords.push(wordList[currentWordIndex]);
             }
-
+            
+            document.getElementById("score").textContent = `${score}`;
             currentWordIndex++;
-
-            if (currentWordIndex < words.length) {
-                setTimeout(loadWord, 1000);
-            } else {
-                finishGame(); // Do not update score here anymore
-            }
+            setTimeout(loadWord, 1000);
         }
 
         function finishGame() {
             document.getElementById("wordDisplay").textContent = "Well Played!";
             document.getElementById("result").textContent = `Final Score: ${score} / 120`;
-            document.querySelectorAll("button").forEach(button => button.style.display = "none");
         }
-
-        
 
         loadWord();
     </script>
