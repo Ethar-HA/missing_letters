@@ -46,7 +46,7 @@
     <h1>Guess the Missing Letters</h1>
     <div id="wordDisplay" class="word-container"></div>
     <button onclick="checkAnswer()">Submit</button>
-    <button onclick="finishEarly()">Finish Early</button>
+
     <p id="result"></p>
     <p>Score: <span id="score">0</span> / 120</p>
 
@@ -65,7 +65,7 @@
             "Passion", "Peace", "Personal Development", "Personal Expression", "Planning", "Play", "Pleasure", "Power", 
             "Privacy", "Purity", "Quality", "Radiance", "Recognition", "Relationships", "Religion", "Reputation", 
             "Responsibility", "Risk", "Safety & Security", "Self-Respect", "Sensibility", "Sensuality", "Serenity", 
-            "Service", "Sexuality", "Sophistication", "Spark", "Speculation", "Spirituality", "Stability", "Success", 
+            "Service", "Sophistication", "Spark", "Speculation", "Spirituality", "Stability", "Success", 
             "Status", "Teaching", "Tenderness", "Thrill", "Unity", "Variety", "Wealth", "Winning", "Wisdom", "Innovation", 
             "Empowerment", "Revolution", "Transformation", "Collaboration", "Sustainability", "Opportunity", "Determination", 
             "Creativity", "Ambition", "Inclusion", "Resilience", "Productivity", "Integrity", "Support", "Diversity", 
@@ -80,7 +80,7 @@
                 let wordArr = word.split("");
                 let indices = [];
                 
-                while (indices.length < 2) {
+                while (indices.length < 3) {
                     let randomIndex = Math.floor(Math.random() * wordArr.length);
                     if (!indices.includes(randomIndex) && wordArr[randomIndex] !== " ") {
                         indices.push(randomIndex);
@@ -165,9 +165,7 @@
             document.querySelectorAll("button").forEach(button => button.style.display = "none");
         }
 
-        function finishEarly() {
-            finishGame();
-        }
+        
 
         loadWord();
     </script>
