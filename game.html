@@ -46,7 +46,7 @@
     <h1>Guess the Missing Letters</h1>
     <div id="wordDisplay" class="word-container"></div>
     <p id="result"></p>
-    <p>Score: <span id="score">0</span> / 120</p>
+    <p>Score: <span id="score">0</span> / 119</p>
 
     <script>
         let wordList = ["Achievement", "Acceptance", "Adventure", "Affection", "Competition", "Awareness", "Beauty", "Challenge", 
@@ -168,7 +168,7 @@
 
         function finishGame() {
             document.getElementById("wordDisplay").textContent = "Well Played!";
-            document.getElementById("result").textContent = `Final Score: ${score} / 120`;
+            document.getElementById("result").textContent = `Final Score: ${score} / 119`;
         }
 
         loadWord();
